@@ -3,10 +3,10 @@ const { Schema } = mongoose;
 
 const RestaurantSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  location: String,
+  address: String,
   image: String,
   description: String,
-  comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
+  comment: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
