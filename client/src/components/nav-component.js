@@ -77,7 +77,7 @@ const NavComponent = ({ currentUser, setCurrentUser }) => {
                 </a>
               </li>
               <li className="nav-item me-3 ms-3">
-                <a className="nav-link" href="/homepage">
+                <a className="nav-link" href="/">
                   Homepage
                 </a>
               </li>

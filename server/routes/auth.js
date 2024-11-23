@@ -24,7 +24,14 @@ router.post("/register", async (req, res) => {
 
   // 製作新用戶
   let { email, username, password, role } = req.body;
-  let newUser = new User({ email, username, password, role });
+  let newUser = new User({
+    email,
+    username,
+    password,
+    role,
+    likedRestaurants: [], // Initialize as empty array
+    createdRestaurants: [],
+  });
   try {
     let savedUser = await newUser.save();
     return res.send({
