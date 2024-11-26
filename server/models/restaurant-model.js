@@ -5,7 +5,8 @@ const RestaurantSchema = new mongoose.Schema({
   name: { type: String, required: true },
   address: String,
   image: String,
-  description: String,
+  michelin_type: String,
+  description: [{ type: String }],
   comment: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
   owner: {
     type: mongoose.Schema.Types.ObjectId,
