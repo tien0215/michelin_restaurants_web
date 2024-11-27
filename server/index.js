@@ -5,6 +5,7 @@ dotenv.config();
 const mongoose = require("mongoose");
 const authRoute = require("./routes").auth;
 const restaurantRoute = require("./routes").restaurant;
+const commentRoute = require("./routes").comment;
 const passport = require("passport");
 require("./config/passport")(passport);
 const cors = require("cors");
@@ -28,9 +29,11 @@ app.use("/api/user", authRoute);
 // 如果request header內部沒有jwt，則request就會被視為是unauthorized
 app.use(
   "/api/restaurants",
-  passport.authenticate("jwt", { session: false }),
+  //passport.authenticate("jwt", { session: false }),
   restaurantRoute
 );
+
+app.use("/api/comments", commentRoute);
 
 app.listen(8080, () => {
   console.log("後端伺服器聆聽在port 8080...");

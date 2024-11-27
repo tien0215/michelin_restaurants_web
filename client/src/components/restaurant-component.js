@@ -1,28 +1,55 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import axios from "axios";
+import { useParams, useLocation } from "react-router-dom";
+import RestaurantService from "../services/restaurant.service";
 
 const RestaurantComponent = ({ currentUser, setCurrentUser }) => {
   const { id } = useParams();
+  const { theName } = useParams();
   const [restaurant, setRestaurant] = useState(null);
+  const [showCommentArea, setShowCommentArea] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [content, setContent] = useState("");
+  const location = useLocation();
 
   useEffect(() => {
-    axios
-      .get(`http://localhost:8080/api/restaurants/${id}`)
-      .then((response) => {
-        setRestaurant(response.data);
-        setLoading(false);
-      })
-      .catch((err) => {
+    const fetchData = async () => {
+      try {
+        let data;
+        if (location.pathname.includes("/findByName")) {
+          data = await RestaurantService.getRestaurantByName(theName);
+        } else {
+          data = await RestaurantService.getRestaurantById(id);
+        }
+        setRestaurant(data);
+      } catch (err) {
         setError(err.message);
+      } finally {
         setLoading(false);
-      });
-  }, [id]);
+      }
+    };
+
+    fetchData();
+  }, [id, theName, location.pathname]);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
+
+  const handleCommentSubmit = async () => {
+    console.log("handleCmmentSubmit call");
+    try {
+      console.log(id, " # ", content, " # ", currentUser.user._id);
+      const response = await RestaurantService.postComment(
+        id,
+        content,
+        currentUser.user._id
+      );
+      console.log("Comment added:", response);
+      setContent(""); // Clear the input after submission
+    } catch (error) {
+      console.error("Error adding comment:", error);
+    }
+  };
 
   return (
     <div className="container py-4 ms-5">
@@ -97,12 +124,31 @@ const RestaurantComponent = ({ currentUser, setCurrentUser }) => {
           {/* Conditional rendering for buttons */}
           {currentUser ? (
             currentUser.user.role === "customer" ? (
-              <button
-                className="btn btn-dark"
-                onClick={() => console.log("Make a comment")}
-              >
-                Make a Comment
-              </button>
+              <>
+                <button
+                  className="btn btn-dark"
+                  onClick={() => setShowCommentArea(!showCommentArea)} // Toggle comment area
+                >
+                  {showCommentArea ? "Cancel" : "Make a Comment"}
+                </button>
+                {showCommentArea && (
+                  <div className="mt-3">
+                    <textarea
+                      className="form-control"
+                      rows="3"
+                      value={content}
+                      onChange={(e) => setContent(e.target.value)}
+                      placeholder="Write your comment here..."
+                    ></textarea>
+                    <button
+                      className="btn btn-primary mt-2"
+                      onClick={handleCommentSubmit}
+                    >
+                      Submit Comment
+                    </button>
+                  </div>
+                )}
+              </>
             ) : currentUser.user.role === "restaurateur" ? (
               <button
                 className="btn btn-dark"
