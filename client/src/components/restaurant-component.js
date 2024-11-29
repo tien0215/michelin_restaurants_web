@@ -11,6 +11,8 @@ const RestaurantComponent = ({ currentUser, setCurrentUser }) => {
   const [error, setError] = useState(null);
   const [content, setContent] = useState("");
   const location = useLocation();
+  const [description, setDescription] = useState("");
+  const [editing, setEditing] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -22,6 +24,9 @@ const RestaurantComponent = ({ currentUser, setCurrentUser }) => {
           data = await RestaurantService.getRestaurantById(id);
         }
         setRestaurant(data);
+        if (data.description) {
+          setDescription(data.description);
+        }
       } catch (err) {
         setError(err.message);
       } finally {
@@ -38,9 +43,9 @@ const RestaurantComponent = ({ currentUser, setCurrentUser }) => {
   const handleCommentSubmit = async () => {
     console.log("handleCmmentSubmit call");
     try {
-      console.log(id, " # ", content, " # ", currentUser.user._id);
+      console.log(restaurant._id, " # ", content, " # ", currentUser.user._id);
       const response = await RestaurantService.postComment(
-        id,
+        restaurant._id,
         content,
         currentUser.user._id
       );
@@ -51,6 +56,15 @@ const RestaurantComponent = ({ currentUser, setCurrentUser }) => {
     }
   };
 
+  const handleEditToggle = () => setEditing(!editing);
+
+  const handleSubmit = async () => {
+    const response = await RestaurantService.updateResturant(
+      restaurant._id,
+      description
+    );
+    setEditing(false);
+  };
   return (
     <>
       {restaurant ? (
@@ -123,7 +137,7 @@ const RestaurantComponent = ({ currentUser, setCurrentUser }) => {
               </p>
               <p className="text-secondary fs-6">{restaurant.address}</p>
               <h4 className="fs-3 mt-5">Description</h4>
-              <p className="fs-5">{restaurant.description}</p>
+
               {/* Conditional rendering for buttons */}
               {currentUser ? (
                 currentUser.user.role === "customer" ? (
@@ -152,14 +166,56 @@ const RestaurantComponent = ({ currentUser, setCurrentUser }) => {
                       </div>
                     )}
                   </>
-                ) : currentUser.user.role === "restaurateur" ? (
-                  <button
-                    className="btn btn-dark"
-                    onClick={() => console.log("Edit restaurant")}
-                  >
-                    Edit Restaurant
-                  </button>
-                ) : null
+                ) : currentUser.user.role === "restaurateur" &&
+                  restaurant.owner === currentUser.user._id ? (
+                  <>
+                    {editing ? (
+                      <div>
+                        <textarea
+                          className="fs-5"
+                          value={description} // Holds the current value of the description
+                          onChange={(e) => setDescription(e.target.value)} // Updates description as you type
+                          rows="5"
+                          style={{
+                            width: "100%",
+                            fontSize: "1rem",
+                            padding: "10px",
+                            height: "250px",
+                          }}
+                        />
+                        <button
+                          onClick={handleSubmit} // Save changes to the description
+                          className="btn btn-success mt-2 me-2"
+                        >
+                          Save Changes
+                        </button>
+                        <button
+                          onClick={handleEditToggle} // Cancel editing
+                          className="btn btn-secondary mt-2 ml-2"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <div>
+                        {/* Displays the current description */}
+                        <p className="fs-5">
+                          {description || "No description available."}
+                        </p>
+                        <button
+                          onClick={handleEditToggle} // Toggles to editing mode
+                          className="btn btn-dark mt-2"
+                        >
+                          Edit Description
+                        </button>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <p className="fs-5">
+                    {description || "No description available."}
+                  </p>
+                )
               ) : (
                 <p>Please log in to interact with the restaurant.</p>
               )}
