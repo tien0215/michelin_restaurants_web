@@ -13,6 +13,10 @@ const CommentSchema = new mongoose.Schema({
     ref: "Restaurant",
     required: true,
   },
+  date: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 module.exports = mongoose.model("Comment", CommentSchema);
