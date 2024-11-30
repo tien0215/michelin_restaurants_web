@@ -38,10 +38,6 @@ class RestaurantService {
 
   updateResturant = async (restaurantId, description) => {
     try {
-      console.log("##");
-      console.log(restaurantId);
-      console.log(description);
-      console.log("#");
       const response = await axios.put(
         `${API_URL}/${restaurantId}/description`,
         {

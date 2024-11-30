@@ -1,10 +1,11 @@
-import React from "react";
-import { useLocation } from "react-router-dom";
+import React, { useState } from "react";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import AuthService from "../services/auth.service";
 
 const NavComponent = ({ currentUser, setCurrentUser }) => {
   const location = useLocation();
-
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
   // Specify pages where the search bar should not appear
   const noSearchBarPages = ["/login", "/register"];
   const shouldShowSearchBar = !noSearchBarPages.includes(location.pathname);
@@ -13,6 +14,11 @@ const NavComponent = ({ currentUser, setCurrentUser }) => {
     AuthService.logout(); // 清空local storage
     window.alert("登出成功!現在您會被導向到首頁。");
     setCurrentUser(null);
+    setSearchTerm("");
+  };
+
+  const handleSearch = async () => {
+    navigate(`/api/restaurants/findByName/${searchTerm}`);
   };
 
   return (
@@ -24,15 +30,20 @@ const NavComponent = ({ currentUser, setCurrentUser }) => {
             <div className="d-flex align-items-center w-50 ms-3 mt-4">
               <input
                 type="text"
+                value={searchTerm}
                 className="form-control py-3 me-3 w-100 rounded-0"
                 placeholder="Type restaurant name here..."
                 aria-label="Type restaurant name here"
                 style={{ backgroundColor: "#D9D9D9", height: "50px" }}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
               <button
-                className="btn btn-danger rounded"
+                className="btn rounded"
                 type="button"
+                onClick={handleSearch} //()=>handleSearch()
                 style={{
+                  backgroundColor: "#c02434",
+                  color: "white",
                   height: "50px",
                   fontFamily: "Inter",
                   fontSize: "18px",
@@ -63,23 +74,37 @@ const NavComponent = ({ currentUser, setCurrentUser }) => {
           >
             <ul className="navbar-nav">
               <li className="nav-item me-3 ms-3 ">
-                <a
+                <Link
                   className="nav-link"
-                  href="/register"
+                  to="/register"
                   style={{ fontFamily: "Inter" }}
                 >
                   Register
-                </a>
+                </Link>
               </li>
-              <li className="nav-item me-3 ms-3 ">
-                <a className="nav-link" href="/login">
-                  Login
-                </a>
-              </li>
+              <>
+                {currentUser === null ? (
+                  <li className="nav-item me-3 ms-3 ">
+                    <Link className="nav-link" to="/login">
+                      Login
+                    </Link>
+                  </li>
+                ) : (
+                  <li className="nav-item me-3 ms-3 ">
+                    <Link
+                      className="nav-link"
+                      onClick={handleLogout}
+                      to="/homepage"
+                    >
+                      Logout
+                    </Link>
+                  </li>
+                )}
+              </>
               <li className="nav-item me-3 ms-3">
-                <a className="nav-link" href="/">
+                <Link className="nav-link" to="/homepage">
                   Homepage
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

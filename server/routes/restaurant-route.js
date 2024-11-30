@@ -14,7 +14,11 @@ router.get("/testAPI", (req, res) => {
 router.get("/findByName/:theName", async (req, res) => {
   let { theName } = req.params;
   try {
-    let restaurantFound = await Restaurant.findOne({ name: theName })
+    console.log("Ab");
+    //
+    let restaurantFound = await Restaurant.findOne({
+      name: { $regex: theName, $options: "i" },
+    })
       .populate({
         path: "comment", // Path to the comments array in the Restaurant schema
         select: "text date createdBy", // Include only specific fields from the Comment schema
@@ -24,12 +28,10 @@ router.get("/findByName/:theName", async (req, res) => {
         },
       })
       .exec();
-
-    return res.send(restaurantFound);
     console.log(restaurantFound);
-
     return res.send(restaurantFound);
   } catch (e) {
+    console.log("No");
     return res.status(500).send(e);
   }
 });
