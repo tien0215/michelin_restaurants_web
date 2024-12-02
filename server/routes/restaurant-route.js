@@ -100,4 +100,15 @@ router.put("/:id/description", async (req, res) => {
   }
 });
 
+//隨機3個餐廳的資訊
+router.get("/gallery/random-restaurants", async (req, res) => {
+  try {
+    const randomRestaurants = await Restaurant.aggregate([
+      { $sample: { size: 3 } },
+    ]);
+    res.json(randomRestaurants);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch random restaurants" });
+  }
+});
 module.exports = router;

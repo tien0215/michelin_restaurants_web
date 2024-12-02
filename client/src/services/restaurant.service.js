@@ -49,5 +49,14 @@ class RestaurantService {
       throw new Error(error.message);
     }
   };
+
+  getRandomRestaurants = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/gallery/random-restaurants`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  };
 }
 export default new RestaurantService();

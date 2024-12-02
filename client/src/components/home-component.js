@@ -1,6 +1,154 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import RestaurantService from "../services/restaurant.service";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
+const StarImag = ({ className, style, onClick, size }) => {
+  return (
+    <img
+      src="/images/star.png" // Adjust the path if necessary
+      alt="Star"
+      className={`me-3 ${className || ""}`} // Append additional classes if provided
+      onClick={onClick} // Attach the onClick handler if provided
+      style={{
+        height: `${size}px`,
+        width: `${size}px`,
+        ...style, // Merge custom styles
+      }}
+    />
+  );
+};
+
+const MichelinRating = ({ michelinType }) => {
+  if (michelinType === "3-star-michelin") {
+    return (
+      <div className="d-flex ms-3 pt-1">
+        <StarImag size={30} />
+        <StarImag size={30} />
+        <StarImag size={30} />
+      </div>
+    );
+  } else if (michelinType === "2-star-michelin") {
+    return (
+      <div className="d-flex ms-3 pt-1">
+        <StarImag size={30} />
+        <StarImag size={30} />
+      </div>
+    );
+  } else if (michelinType === "1-star-michelin") {
+    return (
+      <div className="d-flex ms-3 pt-1">
+        <StarImag size={30} />
+      </div>
+    );
+  } else if (michelinType === "bib-gourmand") {
+    return (
+      <div className="d-flex">
+        <img
+          src="/images/bib.png" // Adjust the path if necessary
+          alt="bib gourmand"
+          style={{
+            height: "40px",
+            width: "60px",
+            paddingTop: "5px",
+            paddingRight: "0px",
+          }}
+        />
+        <p
+          style={{
+            fontSize: "20px",
+            color: "#c02434",
+            paddingTop: "8px",
+          }}
+        >
+          Bib-Gourmand
+        </p>
+      </div>
+    );
+  } else if (michelinType === "the-plate-michelin") {
+    return (
+      <p
+        style={{
+          marginLeft: "10px",
+          fontSize: "20px",
+          color: "#c02434",
+          paddingTop: "5px",
+        }}
+      >
+        Michelin Selected
+      </p>
+    );
+  }
+  return null;
+};
 const HomeComponent = () => {
+  const [restaurants, setRestaurants] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const CustomPrevArrow = (props) => {
+    const { className, style, onClick } = props;
+    return (
+      <div
+        className={className}
+        style={{
+          ...style,
+          left: "10px", // Set the position as needed
+          zIndex: 1,
+          background: "grey",
+        }}
+        onClick={onClick}
+      />
+    );
+  };
+
+  const CustomNextArrow = (props) => {
+    const { className, style, onClick } = props;
+    return (
+      <div
+        className={className}
+        style={{
+          ...style,
+          right: "10px", // Set the position as needed
+          zIndex: 1,
+          background: "grey",
+        }}
+        onClick={onClick}
+      />
+    );
+  };
+  const settings = {
+    dots: true,
+    infinite: true,
+    slidesToShow: 2,
+    slidesToScroll: 2,
+    autoplay: true,
+    speed: 2000,
+    autoplaySpeed: 4000,
+    arrows: true,
+    accessibility: true,
+    prevArrow: <CustomPrevArrow />,
+    nextArrow: <CustomNextArrow />,
+  };
+  useEffect(() => {
+    const fetchRandomRestaurants = async () => {
+      try {
+        const data = await RestaurantService.getRandomRestaurants();
+        setRestaurants(data);
+        console.log(data);
+      } catch (err) {
+        setError("Failed to load random restaurants");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRandomRestaurants();
+  }, []);
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
+
   return (
     <main>
       <div className="container py-4">
@@ -25,26 +173,12 @@ const HomeComponent = () => {
               </h1>
               {/* Images */}
               <div
-                className="d-flex "
+                className="d-flex"
                 style={{ paddingLeft: "50px", paddingTop: "100px" }}
               >
-                <img
-                  src="/images/star.png" // Use "/images/logo.png" if in `public`
-                  alt="Star"
-                  className="me-2"
-                  style={{ height: "100px", width: "100px" }}
-                />
-                <img
-                  src="/images/star.png" // Use "/images/logo.png" if in `public`
-                  alt="Star"
-                  className="me-2"
-                  style={{ height: "100px", width: "100px" }}
-                />
-                <img
-                  src="/images/star.png" // Use "/images/logo.png" if in `public`
-                  alt="Star"
-                  style={{ height: "100px", width: "100px" }}
-                />
+                <StarImag size={100}></StarImag>
+                <StarImag size={100}></StarImag>
+                <StarImag size={100}></StarImag>
               </div>
             </div>
 
@@ -67,73 +201,114 @@ const HomeComponent = () => {
           </div>
         </header>
 
-        <section>
-          <div
-            id="carouselExample"
-            className="carousel slide"
-            data-bs-ride="carousel"
-          >
-            <div className="carousel-inner">
-              <div className="carousel-item active">
+        <section className="mb-5">
+          <div className="slider-container">
+            <Slider {...settings}>
+              <div>
                 <img
-                  src="https://via.placeholder.com/1920x1080"
-                  className="d-block w-100"
-                  alt="Slide 1"
+                  src={restaurants[0].image_url[0]}
+                  className="w-100 h-100"
+                  alt={restaurants[0].name}
+                />
+
+                <p
+                  style={{
+                    display: "flex",
+                    width: "200%",
+                    height: "90px",
+                    left: "10px",
+                    fontSize: "26px",
+                    color: "#fff", // White text for better contrast
+                    backgroundColor: "black", // Semi-transparent black background
+                    paddingTop: "20px",
+                    paddingLeft: "10px",
+                    fontFamily: "Inter",
+                    fontStyle: "italic",
+                  }}
+                >
+                  {restaurants[0].name}
+                  <MichelinRating
+                    michelinType={restaurants[0].michelin_type}
+                  ></MichelinRating>
+                </p>
+              </div>
+              <div>
+                <img
+                  src={restaurants[0].image_url[1]}
+                  className="w-100 h-100"
+                  alt={restaurants[0].name}
                 />
               </div>
-              <div className="carousel-item">
+
+              <div>
                 <img
-                  src="https://via.placeholder.com/1920x1080"
-                  className="d-block w-100"
-                  alt="Slide 2"
+                  src={restaurants[1].image_url[0]}
+                  className="w-100 h-100"
+                  alt={restaurants[1].name}
+                />
+                <p
+                  style={{
+                    display: "flex",
+                    width: "200%",
+                    height: "90px",
+                    left: "10px",
+                    fontSize: "26px",
+                    color: "#fff", // White text for better contrast
+                    backgroundColor: "black", // Semi-transparent black background
+                    paddingTop: "20px",
+                    paddingLeft: "10px",
+                    fontFamily: "Inter",
+                    fontStyle: "italic",
+                  }}
+                >
+                  {restaurants[1].name}
+                  <MichelinRating
+                    michelinType={restaurants[1].michelin_type}
+                  ></MichelinRating>
+                </p>
+              </div>
+              <div>
+                <img
+                  src={restaurants[1].image_url[1]}
+                  className="w-100 h-100"
+                  alt={restaurants[1].name}
                 />
               </div>
-              <div className="carousel-item">
+              <div>
                 <img
-                  src="https://via.placeholder.com/1920x1080"
-                  className="d-block w-100"
-                  alt="Slide 3"
+                  src={restaurants[2].image_url[0]}
+                  className="w-100 h-100"
+                  alt={restaurants[2].name}
+                />
+                <p
+                  style={{
+                    display: "flex",
+                    width: "200%",
+                    height: "90px",
+                    left: "10px",
+                    fontSize: "26px",
+                    color: "#fff", // White text for better contrast
+                    backgroundColor: "black", // Semi-transparent black background
+                    paddingTop: "20px",
+                    paddingLeft: "10px",
+                    fontFamily: "Inter",
+                    fontStyle: "italic",
+                  }}
+                >
+                  {restaurants[2].name}
+                  <MichelinRating
+                    michelinType={restaurants[2].michelin_type}
+                  ></MichelinRating>
+                </p>
+              </div>
+              <div>
+                <img
+                  src={restaurants[2].image_url[1]}
+                  className="w-100 h-100"
+                  alt={restaurants[2].name}
                 />
               </div>
-              <div className="carousel-item">
-                <img
-                  src="https://via.placeholder.com/1920x1080"
-                  className="d-block w-100"
-                  alt="Slide 4"
-                />
-              </div>
-              <div className="carousel-item">
-                <img
-                  src="https://via.placeholder.com/1920x1080"
-                  className="d-block w-100"
-                  alt="Slide 5"
-                />
-              </div>
-            </div>
-            <button
-              className="carousel-control-prev"
-              type="button"
-              data-bs-target="#carouselExample"
-              data-bs-slide="prev"
-            >
-              <span
-                className="carousel-control-prev-icon"
-                aria-hidden="true"
-              ></span>
-              <span className="visually-hidden">Previous</span>
-            </button>
-            <button
-              className="carousel-control-next"
-              type="button"
-              data-bs-target="#carouselExample"
-              data-bs-slide="next"
-            >
-              <span
-                className="carousel-control-next-icon"
-                aria-hidden="true"
-              ></span>
-              <span className="visually-hidden">Next</span>
-            </button>
+            </Slider>
           </div>
         </section>
       </div>

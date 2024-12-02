@@ -14,15 +14,14 @@ const RestaurantComponent = ({ currentUser, setCurrentUser }) => {
   const [description, setDescription] = useState("");
   const [editing, setEditing] = useState(false);
 
+  // useEffect 監聽依賴項: id, theName, location.pathname
   useEffect(() => {
     const fetchData = async () => {
       try {
-        let data;
-        if (location.pathname.includes("/findByName")) {
-          data = await RestaurantService.getRestaurantByName(theName);
-        } else {
-          data = await RestaurantService.getRestaurantById(id);
-        }
+        const data = location.pathname.includes("/findByName")
+          ? await RestaurantService.getRestaurantByName(theName)
+          : await RestaurantService.getRestaurantById(id);
+
         setRestaurant(data);
         if (data.description) {
           setDescription(data.description);
@@ -137,88 +136,96 @@ const RestaurantComponent = ({ currentUser, setCurrentUser }) => {
               </p>
               <p className="text-secondary fs-6">{restaurant.address}</p>
               <h4 className="fs-3 mt-5">Description</h4>
-
               {/* Conditional rendering for buttons */}
-              {currentUser ? (
-                currentUser.user.role === "customer" ? (
-                  <>
-                    <button
-                      className="btn btn-dark"
-                      onClick={() => setShowCommentArea(!showCommentArea)} // Toggle comment area
-                    >
-                      {showCommentArea ? "Cancel" : "Make a Comment"}
-                    </button>
-                    {showCommentArea && (
-                      <div className="mt-3">
-                        <textarea
-                          className="form-control"
-                          rows="3"
-                          value={content}
-                          onChange={(e) => setContent(e.target.value)}
-                          placeholder="Write your comment here..."
-                        ></textarea>
-                        <button
-                          className="btn btn-primary mt-2"
-                          onClick={handleCommentSubmit}
-                        >
-                          Submit Comment
-                        </button>
-                      </div>
-                    )}
-                  </>
-                ) : currentUser.user.role === "restaurateur" &&
-                  restaurant.owner === currentUser.user._id ? (
-                  <>
-                    {editing ? (
-                      <div>
-                        <textarea
-                          className="fs-5"
-                          value={description} // Holds the current value of the description
-                          onChange={(e) => setDescription(e.target.value)} // Updates description as you type
-                          rows="5"
-                          style={{
-                            width: "100%",
-                            fontSize: "1rem",
-                            padding: "10px",
-                            height: "250px",
-                          }}
-                        />
-                        <button
-                          onClick={handleSubmit} // Save changes to the description
-                          className="btn btn-success mt-2 me-2"
-                        >
-                          Save Changes
-                        </button>
-                        <button
-                          onClick={handleEditToggle} // Cancel editing
-                          className="btn btn-secondary mt-2 ml-2"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    ) : (
-                      <div>
-                        {/* Displays the current description */}
-                        <p className="fs-5">
-                          {description || "No description available."}
-                        </p>
-                        <button
-                          onClick={handleEditToggle} // Toggles to editing mode
-                          className="btn btn-dark mt-2"
-                        >
-                          Edit Description
-                        </button>
-                      </div>
-                    )}
-                  </>
+              <>
+                {currentUser === null ? (
+                  // User is not logged in
+                  <div>
+                    <p className="fs-5">
+                      {description || "No description available."}
+                    </p>
+                    <p>Please log in to interact with the restaurant.</p>
+                  </div>
                 ) : (
-                  <p className="fs-5">
-                    {description || "No description available."}
-                  </p>
-                )
-              ) : (
-                <p>Please log in to interact with the restaurant.</p>
-              )}
+                  <>
+                    <p className="fs-5">
+                      {description || "No description available."}
+                    </p>
+                    {
+                      currentUser.user.role === "customer" ? (
+                        // Logged-in user is a customer
+                        <div>
+                          <button
+                            className="btn btn-dark"
+                            onClick={() => setShowCommentArea(!showCommentArea)}
+                          >
+                            {showCommentArea ? "Cancel" : "Make a Comment"}
+                          </button>
+                          {showCommentArea && (
+                            <div className="mt-3">
+                              <textarea
+                                className="form-control"
+                                rows="3"
+                                value={content}
+                                onChange={(e) => setContent(e.target.value)}
+                                placeholder="Write your comment here..."
+                              ></textarea>
+                              <button
+                                className="btn btn-primary mt-2"
+                                onClick={handleCommentSubmit}
+                              >
+                                Submit Comment
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      ) : currentUser.user.role === "restaurateur" ? (
+                        // Logged-in user is a restaurateur
+                        currentUser.user._id === restaurant.owner ? (
+                          // Restaurateur is the owner
+                          editing ? (
+                            <div>
+                              <textarea
+                                className="fs-5"
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                rows="5"
+                                style={{
+                                  width: "100%",
+                                  fontSize: "1rem",
+                                  padding: "10px",
+                                  height: "250px",
+                                }}
+                              />
+                              <button
+                                onClick={handleSubmit}
+                                className="btn btn-success mt-2 me-2"
+                              >
+                                Save Changes
+                              </button>
+                              <button
+                                onClick={handleEditToggle}
+                                className="btn btn-secondary mt-2"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          ) : (
+                            <div>
+                              <button
+                                onClick={handleEditToggle}
+                                className="btn btn-dark mt-2"
+                              >
+                                Edit Description
+                              </button>
+                            </div>
+                          )
+                        ) : null // Restaurateur is not the owner
+                      ) : null // Default fallback (optional)
+                    }
+                  </>
+                )}
+              </>
             </div>
           </div>
 
@@ -228,7 +235,10 @@ const RestaurantComponent = ({ currentUser, setCurrentUser }) => {
           </div>
         </div>
       ) : (
-        <p> No such Restaurant, please search again</p>
+        <p className="ms-4 mt-2 ps-1 fs-5" style={{ fontFamily: "Inter" }}>
+          {" "}
+          No such Restaurant, please search again.
+        </p>
       )}
     </>
   );
