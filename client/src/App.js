@@ -7,6 +7,7 @@ import LoginComponent from "./components/login-component";
 import RestaurantComponent from "./components/restaurant-component";
 import AuthService from "./services/auth.service";
 import ProfileComponent from "./components/profile-component";
+import RestaurantViewPage from "./components/restaurantlist-view-component";
 function App() {
   let [currentUser, setCurrentUser] = useState(AuthService.getCurrentUser());
   return (
@@ -52,6 +53,15 @@ function App() {
             path="/api/restaurants/findByName/:theName"
             element={
               <RestaurantComponent
+                currentUser={currentUser}
+                setCurrentUser={setCurrentUser}
+              />
+            }
+          />
+          <Route
+            path="/api/restaurants/favrestaurant/:userID"
+            element={
+              <RestaurantViewPage
                 currentUser={currentUser}
                 setCurrentUser={setCurrentUser}
               />

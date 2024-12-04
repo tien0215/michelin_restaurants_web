@@ -50,9 +50,33 @@ class RestaurantService {
     }
   };
 
+  saveToList = async (userId, restaurantId, listType) => {
+    try {
+      const response = await axios.put(
+        `${API_URL}/savelist/${restaurantId}/${userId}/${listType}`
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  };
+
   getRandomRestaurants = async () => {
     try {
       const response = await axios.get(`${API_URL}/gallery/random-restaurants`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  };
+
+  getUserRestaurantIteams = async (id, listType) => {
+    console.log("listType: " + listType);
+    // Replace with your API endpoint to fetch user favorites
+    try {
+      const response = await axios.get(`${API_URL}/favrestaurant/${id}`, {
+        params: { listType }, // Pass listType as a query parameter
+      });
       return response.data;
     } catch (error) {
       throw new Error(error.message);

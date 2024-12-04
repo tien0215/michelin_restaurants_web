@@ -13,6 +13,8 @@ const RestaurantComponent = ({ currentUser, setCurrentUser }) => {
   const location = useLocation();
   const [description, setDescription] = useState("");
   const [editing, setEditing] = useState(false);
+  const [favoritesActive, setFavoritesActive] = useState(false);
+  const [visitedActive, setVisitedActive] = useState(false);
 
   // useEffect 監聽依賴項: id, theName, location.pathname
   useEffect(() => {
@@ -58,12 +60,32 @@ const RestaurantComponent = ({ currentUser, setCurrentUser }) => {
   const handleEditToggle = () => setEditing(!editing);
 
   const handleSubmit = async () => {
-    const response = await RestaurantService.updateResturant(
-      restaurant._id,
-      description
-    );
-    setEditing(false);
+    try {
+      await RestaurantService.updateResturant(restaurant._id, description);
+      setEditing(false);
+    } catch (err) {
+      console.error("Error during save:", error);
+    }
   };
+
+  const handleSave = async (listType) => {
+    try {
+      await RestaurantService.saveToList(
+        currentUser.user._id,
+        restaurant._id,
+        listType
+      );
+    } catch (err) {
+      console.error("Error during save:", error);
+    }
+
+    if (listType === "favorites") {
+      setFavoritesActive(!favoritesActive);
+    } else if (listType === "visited") {
+      setVisitedActive(!visitedActive);
+    }
+  };
+
   return (
     <>
       {restaurant ? (
@@ -135,7 +157,31 @@ const RestaurantComponent = ({ currentUser, setCurrentUser }) => {
                 {restaurant.michelin_type}
               </p>
               <p className="text-secondary fs-6">{restaurant.address}</p>
-              <h4 className="fs-3 mt-5">Description</h4>
+
+              {/* section 2.5 : liked and fav button */}
+              <div
+                className="button-group"
+                style={{ display: "flex", gap: "10px" }}
+              >
+                <button
+                  className={`btn save-button ${
+                    favoritesActive ? "active" : ""
+                  }`}
+                  style={{ backgroundColor: "#D9D9D9" }}
+                  onClick={() => handleSave("favorites")}
+                >
+                  {favoritesActive ? "Favorited" : "Save to Favorites"}
+                </button>
+                <button
+                  className={`btn save-button ${visitedActive ? "active" : ""}`}
+                  style={{ backgroundColor: "#D9D9D9" }}
+                  onClick={() => handleSave("visited")}
+                >
+                  {visitedActive ? "Visited" : "Save to Visited"}
+                </button>
+              </div>
+              {/* section 3 : liked and fav button */}
+              <h4 className="fs-3 mt-4">Description</h4>
               {/* Conditional rendering for buttons */}
               <>
                 {currentUser === null ? (
@@ -199,7 +245,7 @@ const RestaurantComponent = ({ currentUser, setCurrentUser }) => {
                               />
                               <button
                                 onClick={handleSubmit}
-                                className="btn btn-success mt-2 me-2"
+                                className="btn btn-primary mt-2 me-2"
                               >
                                 Save Changes
                               </button>

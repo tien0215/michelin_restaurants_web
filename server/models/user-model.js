@@ -34,6 +34,9 @@ const userSchema = new Schema({
   createdRestaurants: [
     { type: mongoose.Schema.Types.ObjectId, ref: "Restaurant" },
   ],
+  visitedRestaurants: [
+    { type: mongoose.Schema.Types.ObjectId, ref: "Restaurant" },
+  ],
 });
 
 // instance methods
