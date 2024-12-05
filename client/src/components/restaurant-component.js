@@ -16,7 +16,7 @@ const RestaurantComponent = ({ currentUser, setCurrentUser }) => {
   const [favoritesActive, setFavoritesActive] = useState(false);
   const [visitedActive, setVisitedActive] = useState(false);
 
-  // useEffect 監聽依賴項: id, theName, location.pathname
+  // useEffect 監聽依賴項: id, theName, location.pathname, favoritesActive, visitedActive
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -25,18 +25,30 @@ const RestaurantComponent = ({ currentUser, setCurrentUser }) => {
           : await RestaurantService.getRestaurantById(id);
 
         setRestaurant(data);
+        if (currentUser) {
+          console.log("----");
+          if (currentUser.user.likedRestaurants.includes(data._id)) {
+            setFavoritesActive(true);
+          }
+          if (currentUser.user.visitedRestaurants.includes(data._id)) {
+            setVisitedActive(true);
+          }
+        } else {
+          console.log("!!!!");
+        }
+
         if (data.description) {
           setDescription(data.description);
         }
       } catch (err) {
-        setError(err.message);
+        setError(err.message + "&&&");
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [id, theName, location.pathname]);
+  }, [id, theName, location.pathname, favoritesActive, visitedActive]);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
