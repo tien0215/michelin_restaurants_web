@@ -69,11 +69,11 @@ const NavComponent = ({ currentUser, setCurrentUser }) => {
 
           {/* Navbar Items */}
           <div
-            className="collapse navbar-collapse justify-content-end mt-4 fs-5"
+            className="collapse navbar-collapse justify-content-end mt-4 fs-5 "
             id="navbarNav"
           >
-            <ul className="navbar-nav">
-              <li className="nav-item me-3 ms-3 ">
+            <ul className="navbar-nav ">
+              <li className="nav-item me-4 ms-2 ">
                 <Link
                   className="nav-link"
                   to="/register"
@@ -84,24 +84,34 @@ const NavComponent = ({ currentUser, setCurrentUser }) => {
               </li>
               <>
                 {currentUser === null ? (
-                  <li className="nav-item me-3 ms-3 ">
+                  <li className="nav-item me-2 ms-2 ">
                     <Link className="nav-link" to="/login">
                       Login
                     </Link>
                   </li>
                 ) : (
-                  <li className="nav-item me-3 ms-3 ">
-                    <Link
-                      className="nav-link"
-                      onClick={handleLogout}
-                      to="/homepage"
-                    >
-                      Logout
-                    </Link>
-                  </li>
+                  <div className="d-flex">
+                    <li className="nav-item me-2 ms-2 ">
+                      <Link
+                        className="nav-link"
+                        onClick={handleLogout}
+                        to="/homepage"
+                      >
+                        Logout
+                      </Link>
+                    </li>
+                    <li className="nav-item me-2 ms-2">
+                      <Link
+                        className="nav-link"
+                        to={`/api/restaurants/favrestaurant/${currentUser.user._id}`}
+                      >
+                        myRestaurant
+                      </Link>
+                    </li>
+                  </div>
                 )}
               </>
-              <li className="nav-item me-3 ms-3">
+              <li className="nav-item me-2 ms-2">
                 <Link className="nav-link" to="/homepage">
                   Homepage
                 </Link>
