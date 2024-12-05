@@ -26,15 +26,12 @@ const RestaurantComponent = ({ currentUser, setCurrentUser }) => {
 
         setRestaurant(data);
         if (currentUser) {
-          console.log("----");
           if (currentUser.user.likedRestaurants.includes(data._id)) {
             setFavoritesActive(true);
           }
           if (currentUser.user.visitedRestaurants.includes(data._id)) {
             setVisitedActive(true);
           }
-        } else {
-          console.log("!!!!");
         }
 
         if (data.description) {
@@ -81,20 +78,28 @@ const RestaurantComponent = ({ currentUser, setCurrentUser }) => {
   };
 
   const handleSave = async (listType) => {
-    try {
-      await RestaurantService.saveToList(
-        currentUser.user._id,
-        restaurant._id,
-        listType
-      );
-    } catch (err) {
-      console.error("Error during save:", error);
-    }
+    if (currentUser) {
+      if (currentUser.user.role === "restaurateur") {
+        alert("This is the feature for the customer user :)");
+      } else {
+        try {
+          await RestaurantService.saveToList(
+            currentUser.user._id,
+            restaurant._id,
+            listType
+          );
+        } catch (err) {
+          console.error("Error during save:", error);
+        }
 
-    if (listType === "favorites") {
-      setFavoritesActive(!favoritesActive);
-    } else if (listType === "visited") {
-      setVisitedActive(!visitedActive);
+        if (listType === "favorites") {
+          setFavoritesActive(!favoritesActive);
+        } else if (listType === "visited") {
+          setVisitedActive(!visitedActive);
+        }
+      }
+    } else {
+      alert("Please Login or Register to unlock this feature.");
     }
   };
 
