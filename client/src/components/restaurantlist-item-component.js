@@ -43,17 +43,24 @@ const RestaurantListItemComponent = ({
   listType,
 }) => {
   const [favorites, setFavorites] = useState([]);
+  const [visited, setVisited] = useState([]);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchUserRestaurants = async () => {
+      console.log("listType ", listType);
       try {
         const data = await RestaurantService.getUserRestaurantIteams(
           currentUser.user._id,
           listType
         );
-        setFavorites(data);
-        console.log(data);
+        if (listType === "favorites") {
+          setFavorites(data);
+        } else {
+          setVisited(data);
+        }
+
+        console.log("item log", data);
       } catch (err) {
         setError("Failed to load user favorite restaurants");
       }
@@ -81,9 +88,13 @@ const RestaurantListItemComponent = ({
           gap: "50px 0px",
         }}
       >
-        {favorites.map((restaurant) => (
-          <RestaurantCard key={restaurant.id} restaurant={restaurant} />
-        ))}
+        {listType === "favorites"
+          ? favorites.map((restaurant, index) => (
+              <RestaurantCard key={index} restaurant={restaurant} />
+            ))
+          : visited.map((restaurant, index) => (
+              <RestaurantCard key={index} restaurant={restaurant} />
+            ))}
       </div>
     </div>
   );

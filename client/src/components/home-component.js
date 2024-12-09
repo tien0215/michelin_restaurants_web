@@ -218,8 +218,8 @@ const HomeComponent = () => {
                     height: "90px",
                     left: "10px",
                     fontSize: "26px",
-                    color: "#fff", // White text for better contrast
-                    backgroundColor: "black", // Semi-transparent black background
+                    color: "#fff",
+                    backgroundColor: "black",
                     paddingTop: "20px",
                     paddingLeft: "10px",
                     fontFamily: "Inter",
@@ -253,8 +253,8 @@ const HomeComponent = () => {
                     height: "90px",
                     left: "10px",
                     fontSize: "26px",
-                    color: "#fff", // White text for better contrast
-                    backgroundColor: "black", // Semi-transparent black background
+                    color: "#fff",
+                    backgroundColor: "black",
                     paddingTop: "20px",
                     paddingLeft: "10px",
                     fontFamily: "Inter",
@@ -287,8 +287,8 @@ const HomeComponent = () => {
                     height: "90px",
                     left: "10px",
                     fontSize: "26px",
-                    color: "#fff", // White text for better contrast
-                    backgroundColor: "black", // Semi-transparent black background
+                    color: "#fff",
+                    backgroundColor: "black",
                     paddingTop: "20px",
                     paddingLeft: "10px",
                     fontFamily: "Inter",

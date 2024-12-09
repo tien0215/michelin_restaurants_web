@@ -17,12 +17,12 @@ const ProfileComponent = ({ currentUser, setCurrentUser }) => {
               </tr>
               <tr>
                 <td>
-                  <strong>User ID:: {currentUser.user._id}</strong>
+                  <strong>User ID: {currentUser.user._id}</strong>
                 </td>
               </tr>
               <tr>
                 <td>
-                  <strong>Email address: {currentUser.user.email}</strong>
+                  <strong>Email Address: {currentUser.user.email}</strong>
                 </td>
               </tr>
               <tr>

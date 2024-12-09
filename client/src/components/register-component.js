@@ -86,6 +86,15 @@ const RegisterComponent = () => {
           <span>Register</span>
         </button>
       </div>
+      <style>
+        {`
+      .form-control::placeholder {
+        color: grey;
+        font-size: 14px;
+        font-family:"Inter";
+      }
+    `}
+      </style>
     </div>
   );
 };
