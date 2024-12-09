@@ -2,19 +2,19 @@ import React, { useState, useEffect } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import RestaurantService from "../services/restaurant.service";
 import CommentComponent from "./comment-component";
+import FavoriteVisitedButtonComponent from "./savebutton-component";
+
 const RestaurantComponent = ({ currentUser, setCurrentUser }) => {
-  const { id } = useParams();
+  const { id } = useParams(); //this state variable only for url that contains :id
   const { theName } = useParams();
+  const location = useLocation();
   const [restaurant, setRestaurant] = useState(null);
   const [showCommentArea, setShowCommentArea] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [content, setContent] = useState("");
-  const location = useLocation();
   const [description, setDescription] = useState("");
   const [editing, setEditing] = useState(false);
-  const [favoritesActive, setFavoritesActive] = useState(false);
-  const [visitedActive, setVisitedActive] = useState(false);
 
   // useEffect 監聽依賴項: id, theName, location.pathname, favoritesActive, visitedActive
   useEffect(() => {
@@ -25,27 +25,18 @@ const RestaurantComponent = ({ currentUser, setCurrentUser }) => {
           : await RestaurantService.getRestaurantById(id);
 
         setRestaurant(data);
-        if (currentUser) {
-          if (currentUser.user.likedRestaurants.includes(data._id)) {
-            setFavoritesActive(true);
-          }
-          if (currentUser.user.visitedRestaurants.includes(data._id)) {
-            setVisitedActive(true);
-          }
-        }
-
         if (data.description) {
           setDescription(data.description);
         }
       } catch (err) {
-        setError(err.message + "&&&");
+        setError(err.message);
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [id, theName, location.pathname, favoritesActive, visitedActive]);
+  }, [id, theName, location.pathname]);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
@@ -53,7 +44,6 @@ const RestaurantComponent = ({ currentUser, setCurrentUser }) => {
   const handleCommentSubmit = async () => {
     console.log("handleCmmentSubmit call");
     try {
-      console.log(restaurant._id, " # ", content, " # ", currentUser.user._id);
       const response = await RestaurantService.postComment(
         restaurant._id,
         content,
@@ -74,32 +64,6 @@ const RestaurantComponent = ({ currentUser, setCurrentUser }) => {
       setEditing(false);
     } catch (err) {
       console.error("Error during save:", error);
-    }
-  };
-
-  const handleSave = async (listType) => {
-    if (currentUser) {
-      if (currentUser.user.role === "restaurateur") {
-        alert("This is the feature for the customer user :)");
-      } else {
-        try {
-          await RestaurantService.saveToList(
-            currentUser.user._id,
-            restaurant._id,
-            listType
-          );
-        } catch (err) {
-          console.error("Error during save:", error);
-        }
-
-        if (listType === "favorites") {
-          setFavoritesActive(!favoritesActive);
-        } else if (listType === "visited") {
-          setVisitedActive(!visitedActive);
-        }
-      }
-    } else {
-      alert("Please Login or Register to unlock this feature.");
     }
   };
 
@@ -174,30 +138,11 @@ const RestaurantComponent = ({ currentUser, setCurrentUser }) => {
                 {restaurant.michelin_type}
               </p>
               <p className="text-secondary fs-6">{restaurant.address}</p>
+              <FavoriteVisitedButtonComponent
+                currentUser={currentUser}
+                restaurantId={restaurant._id}
+              ></FavoriteVisitedButtonComponent>
 
-              {/* section 2.5 : liked and fav button */}
-              <div
-                className="button-group"
-                style={{ display: "flex", gap: "10px" }}
-              >
-                <button
-                  className={`btn save-button ${
-                    favoritesActive ? "active" : ""
-                  }`}
-                  style={{ backgroundColor: "#D9D9D9" }}
-                  onClick={() => handleSave("favorites")}
-                >
-                  {favoritesActive ? "Favorited" : "Save to Favorites"}
-                </button>
-                <button
-                  className={`btn save-button ${visitedActive ? "active" : ""}`}
-                  style={{ backgroundColor: "#D9D9D9" }}
-                  onClick={() => handleSave("visited")}
-                >
-                  {visitedActive ? "Visited" : "Save to Visited"}
-                </button>
-              </div>
-              {/* section 3 : liked and fav button */}
               <h4 className="fs-3 mt-4">Description</h4>
               {/* Conditional rendering for buttons */}
               <>

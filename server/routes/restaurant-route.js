@@ -15,7 +15,6 @@ router.get("/testAPI", (req, res) => {
 router.get("/findByName/:theName", async (req, res) => {
   let { theName } = req.params;
   try {
-    console.log("Ab");
     //
     let restaurantFound = await Restaurant.findOne({
       name: { $regex: theName, $options: "i" },
@@ -64,14 +63,14 @@ router.get("/:restaurantId/comments", async (req, res) => {
   try {
     const restaurant = await Restaurant.findById(restaurantId).populate({
       path: "comments",
-      populate: { path: "createdBy", select: "name" }, // Populate user details if needed
+      populate: { path: "createdBy", select: "username" }, // Populate user details if needed
     });
 
     if (!restaurant) {
       return res.status(404).json({ error: "Restaurant not found" });
     }
 
-    res.status(200).json(restaurant.comments);
+    res.status(200).json(restaurant.comment);
   } catch (error) {
     console.error("Error fetching comments:", error.message);
     res
@@ -94,7 +93,28 @@ router.put("/savelist/:restaurantId/:userId/:listType", async (req, res) => {
       user.visitedRestaurants.push(restaurantId);
     }
     await user.save();
-    res.json({ message: "Restaurant list updated successfully!" });
+    res.json({ message: "Restaurant list updated successfully!", user: user });
+  } catch (error) {
+    console.error("Error updating user's restaurant list:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+router.put("/deletelist/:restaurantId/:userId/:listType", async (req, res) => {
+  const { restaurantId, userId, listType } = req.params;
+  console.log(restaurantId, " ", userId, " ", listType);
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+    if (listType === "favorites") {
+      user.likedRestaurants.remove(restaurantId);
+    } else if (listType === "visited") {
+      user.visitedRestaurants.remove(restaurantId);
+    }
+    await user.save();
+    res.json({ message: "Restaurant list updated successfully!", user: user });
   } catch (error) {
     console.error("Error updating user's restaurant list:", error);
     res.status(500).json({ message: "Internal server error." });

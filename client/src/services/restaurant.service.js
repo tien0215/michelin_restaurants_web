@@ -61,6 +61,16 @@ class RestaurantService {
     }
   };
 
+  deleteFromList = async (userId, restaurantId, listType) => {
+    try {
+      const response = await axios.put(
+        `${API_URL}/deletelist/${restaurantId}/${userId}/${listType}`
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  };
   getRandomRestaurants = async () => {
     try {
       const response = await axios.get(`${API_URL}/gallery/random-restaurants`);

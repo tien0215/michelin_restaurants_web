@@ -31,6 +31,7 @@ router.post("/register", async (req, res) => {
     role,
     likedRestaurants: [], // Initialize as empty array
     createdRestaurants: [],
+    visitedRestaurants: [],
   });
   try {
     let savedUser = await newUser.save();
