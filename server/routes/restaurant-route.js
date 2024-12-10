@@ -1,6 +1,8 @@
 const router = require("express").Router();
 const Restaurant = require("../models").restaurant;
 const User = require("../models").user;
+const passport = require("passport");
+require("../config/passport")(passport);
 
 router.use((req, res, next) => {
   console.log("restaurant route正在接受一個request...");
@@ -79,66 +81,84 @@ router.get("/:restaurantId/comments", async (req, res) => {
   }
 });
 
-router.put("/savelist/:restaurantId/:userId/:listType", async (req, res) => {
-  const { restaurantId, userId, listType } = req.params;
-  console.log(restaurantId, " ", userId, " ", listType);
-  try {
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: "User not found." });
+router.put(
+  "/savelist/:restaurantId/:userId/:listType",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    const { restaurantId, userId, listType } = req.params;
+    console.log(restaurantId, " ", userId, " ", listType);
+    try {
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found." });
+      }
+      if (listType === "favorites") {
+        user.likedRestaurants.push(restaurantId);
+      } else if (listType === "visited") {
+        user.visitedRestaurants.push(restaurantId);
+      }
+      await user.save();
+      res.json({
+        message: "Restaurant list updated successfully!",
+        user: user,
+      });
+    } catch (error) {
+      console.error("Error updating user's restaurant list:", error);
+      res.status(500).json({ message: "Internal server error." });
     }
-    if (listType === "favorites") {
-      user.likedRestaurants.push(restaurantId);
-    } else if (listType === "visited") {
-      user.visitedRestaurants.push(restaurantId);
-    }
-    await user.save();
-    res.json({ message: "Restaurant list updated successfully!", user: user });
-  } catch (error) {
-    console.error("Error updating user's restaurant list:", error);
-    res.status(500).json({ message: "Internal server error." });
   }
-});
+);
 
-router.put("/deletelist/:restaurantId/:userId/:listType", async (req, res) => {
-  const { restaurantId, userId, listType } = req.params;
-  console.log(restaurantId, " ", userId, " ", listType);
-  try {
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: "User not found." });
+router.put(
+  "/deletelist/:restaurantId/:userId/:listType",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    const { restaurantId, userId, listType } = req.params;
+    console.log(restaurantId, " ", userId, " ", listType);
+    try {
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found." });
+      }
+      if (listType === "favorites") {
+        user.likedRestaurants.remove(restaurantId);
+      } else if (listType === "visited") {
+        user.visitedRestaurants.remove(restaurantId);
+      }
+      await user.save();
+      res.json({
+        message: "Restaurant list updated successfully!",
+        user: user,
+      });
+    } catch (error) {
+      console.error("Error updating user's restaurant list:", error);
+      res.status(500).json({ message: "Internal server error." });
     }
-    if (listType === "favorites") {
-      user.likedRestaurants.remove(restaurantId);
-    } else if (listType === "visited") {
-      user.visitedRestaurants.remove(restaurantId);
-    }
-    await user.save();
-    res.json({ message: "Restaurant list updated successfully!", user: user });
-  } catch (error) {
-    console.error("Error updating user's restaurant list:", error);
-    res.status(500).json({ message: "Internal server error." });
   }
-});
+);
 
 //編輯餐廳描述
-router.put("/:id/description", async (req, res) => {
-  const { id } = req.params;
-  const { description } = req.body;
-  try {
-    const restaurant = await Restaurant.findById(id);
-    if (!restaurant) {
-      return res.status(404).json({ message: "Restaurant not found." });
-    }
-    restaurant.description = description;
-    await restaurant.save();
+router.put(
+  "/:id/description",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    const { id } = req.params;
+    const { description } = req.body;
+    try {
+      const restaurant = await Restaurant.findById(id);
+      if (!restaurant) {
+        return res.status(404).json({ message: "Restaurant not found." });
+      }
+      restaurant.description = description;
+      await restaurant.save();
 
-    res.json({ message: "Description updated successfully!" });
-  } catch (error) {
-    console.error("Error updating description:", error);
-    res.status(500).json({ message: "Internal server error." });
+      res.json({ message: "Description updated successfully!" });
+    } catch (error) {
+      console.error("Error updating description:", error);
+      res.status(500).json({ message: "Internal server error." });
+    }
   }
-});
+);
 
 //隨機3個餐廳的資訊
 router.get("/gallery/random-restaurants", async (req, res) => {

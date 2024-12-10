@@ -25,15 +25,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 app.use("/api/user", authRoute);
-// restaurant route應該被jwt保護
-// 如果request header內部沒有jwt，則request就會被視為是unauthorized
-app.use(
-  "/api/restaurants",
-  //passport.authenticate("jwt", { session: false }),
-  restaurantRoute
-);
 
-app.use("/api/comments", commentRoute);
+app.use("/api/restaurants", restaurantRoute);
+
+app.use(
+  "/api/comments",
+  passport.authenticate("jwt", { session: false }),
+  commentRoute
+);
 
 app.listen(8080, () => {
   console.log("後端伺服器聆聽在port 8080...");

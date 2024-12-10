@@ -26,9 +26,13 @@ const FavoriteVisitedButtonComponent = ({ currentUser, restaurantId }) => {
           restaurantId,
           "favorites"
         );
-        localStorage.setItem("user", JSON.stringify(data));
-        console.log(data);
-        // Toggle favorite status
+
+        const updatedData = {
+          ...data, // Spread the existing properties from the `data` object
+          token: currentUser.token, // Add the `token` property
+        };
+
+        localStorage.setItem("user", JSON.stringify(updatedData));
       } catch (error) {
         console.error("Error toggling favorite:", error);
       }
@@ -39,7 +43,12 @@ const FavoriteVisitedButtonComponent = ({ currentUser, restaurantId }) => {
           restaurantId,
           "favorites"
         );
-        localStorage.setItem("user", JSON.stringify(data));
+        const updatedData = {
+          ...data, // Spread the existing properties from the `data` object
+          token: currentUser.token, // Add the `token` property
+        };
+
+        localStorage.setItem("user", JSON.stringify(updatedData));
         console.log(data);
         // Toggle favorite status
       } catch (error) {
@@ -58,7 +67,12 @@ const FavoriteVisitedButtonComponent = ({ currentUser, restaurantId }) => {
           restaurantId,
           "visited"
         );
-        localStorage.setItem("user", JSON.stringify(data));
+        const updatedData = {
+          ...data, // Spread the existing properties from the `data` object
+          token: currentUser.token, // Add the `token` property
+        };
+
+        localStorage.setItem("user", JSON.stringify(updatedData));
       } catch (error) {
         console.error("Error toggling visited:", error);
       }
@@ -69,7 +83,12 @@ const FavoriteVisitedButtonComponent = ({ currentUser, restaurantId }) => {
           restaurantId,
           "visited"
         );
-        localStorage.setItem("user", JSON.stringify(data));
+        const updatedData = {
+          ...data, // Spread the existing properties from the `data` object
+          token: currentUser.token, // Add the `token` property
+        };
+
+        localStorage.setItem("user", JSON.stringify(updatedData));
       } catch (error) {
         console.error("Error toggling visited:", error);
       }

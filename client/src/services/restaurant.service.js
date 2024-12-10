@@ -3,6 +3,14 @@ const API_URL = "http://localhost:8080/api/restaurants";
 // Base URL for the API
 
 class RestaurantService {
+  constructor() {
+    if (localStorage.getItem("user")) {
+      this.token = JSON.parse(localStorage.getItem("user")).token;
+    } else {
+      this.token = "";
+    }
+  }
+
   getRestaurantById = async (id) => {
     try {
       const response = await axios.get(`${API_URL}/${id}`);
@@ -28,6 +36,11 @@ class RestaurantService {
         {
           content,
           user: userID, // Replace with actual user ID
+        },
+        {
+          headers: {
+            Authorization: this.token,
+          },
         }
       );
       return response.data;
@@ -42,6 +55,11 @@ class RestaurantService {
         `${API_URL}/${restaurantId}/description`,
         {
           description,
+        },
+        {
+          headers: {
+            Authorization: this.token,
+          },
         }
       );
       return response.data;
@@ -53,7 +71,13 @@ class RestaurantService {
   saveToList = async (userId, restaurantId, listType) => {
     try {
       const response = await axios.put(
-        `${API_URL}/savelist/${restaurantId}/${userId}/${listType}`
+        `${API_URL}/savelist/${restaurantId}/${userId}/${listType}`,
+        {},
+        {
+          headers: {
+            Authorization: this.token,
+          },
+        }
       );
       return response.data;
     } catch (error) {
@@ -64,7 +88,13 @@ class RestaurantService {
   deleteFromList = async (userId, restaurantId, listType) => {
     try {
       const response = await axios.put(
-        `${API_URL}/deletelist/${restaurantId}/${userId}/${listType}`
+        `${API_URL}/deletelist/${restaurantId}/${userId}/${listType}`,
+        {},
+        {
+          headers: {
+            Authorization: this.token,
+          },
+        }
       );
       return response.data;
     } catch (error) {
